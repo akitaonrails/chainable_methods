@@ -14,6 +14,10 @@ module FooModule
   def self.split_words(state)
     state.split(" ")
   end
+
+  def self.filter(state)
+    yield(state)
+  end
 end
 
 class ChainableMethodsTest < Minitest::Test
@@ -45,6 +49,29 @@ class ChainableMethodsTest < Minitest::Test
                unwrap
 
     assert_equal result, %w(HELLO World)
+  end
+
+  def test_that_it_allows_methods_with_blocks
+    initial_state = "Hello"
+
+    result = FooModule.chain_from(initial_state).
+               append_message("World").
+               filter { |state| state.gsub("o", "0") }.
+               unwrap
+
+    assert_equal result, "Hell0 W0rld"
+  end
+
+  def test_more_enumerable_methods
+    initial_state = "a b c d e f"
+
+    result = FooModule.chain_from(initial_state).
+      split_words.
+      map { |character| "(#{character})" }.
+      join(", ").
+      unwrap
+
+    assert_equal result, "(a), (b), (c), (d), (e), (f)"
   end
 
   def test_that_it_has_a_version_number

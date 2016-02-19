@@ -13,6 +13,11 @@ module ChainableMethods
       @context = context
     end
 
+		def apply(&block)
+			@state = block.call @state
+			ChainableMethods::Link.new(@state, @context)
+		end
+
     def method_missing(name, *args, &block)
       if state.respond_to?(name)
         ChainableMethods::Link.new( state.send(name, *args, &block), context)

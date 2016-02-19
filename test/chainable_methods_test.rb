@@ -77,4 +77,14 @@ class ChainableMethodsTest < Minitest::Test
   def test_that_it_has_a_version_number
     refute_nil ::ChainableMethods::VERSION
   end
+
+	def test_that_it_accepts_external_methods
+		initial_state = "a b c d e f"
+
+		result = FooModule.chain_from(initial_state).
+				apply {|x| x.upcase }.
+				unwrap
+
+		assert_equal result, "A B C D E F"
+	end
 end

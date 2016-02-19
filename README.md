@@ -4,7 +4,7 @@ The Elixir language is doing great and within its many incredible features is th
 
 It allows you to do constructs such as this:
 
-```
+```elixir
 1..100_000
   |> Stream.map(&(&1 * 3))
   |> Stream.filter(odd?)
@@ -13,7 +13,7 @@ It allows you to do constructs such as this:
 
 In a nutshell, this is taking the previous returning value and automatically passing as the first argument of the following function call, so it's equivalent to do this:
 
-```
+```ruby
 Enum.sum(Enum.filter(Enum.map(1..100_000, &(&1 * 3)), odd?))
 ```
 
@@ -21,13 +21,13 @@ This is how we would usually do it, but with the Pipe Operator it becomes incred
 
 Now, in the Ruby world, we would prefer to do it in a more Object Oriented fashion, with chained methods like this:
 
-```
+```ruby
 object.method_1.method_2(argument).method_3 { |x| do_something(x) }.method_4
 ```
 
 This is how we do things in Rails, for example, Arel coming into mind:
 
-```
+```ruby
 User.first.comments.where(created_at: 2.days.ago..Time.current).limit(5)
 ```
 
@@ -55,7 +55,7 @@ Or install it yourself as:
 
 ## Usage
 
-```
+```ruby
 # create your Module with composable 'functions'
 module MyModule
   extend ChainableMethods
@@ -77,7 +77,7 @@ end
 
 And now we can build something like this:
 
-```
+```ruby
 MyModule.
   chain_from(some_text).
   upcase. # this calls a method from the string in 'some_text'
@@ -89,7 +89,7 @@ MyModule.
 
 And that's it. This would be the equivalent of doing something more verbose like this:
 
-```
+```ruby
 a = some_text.upcase
 b = MyModule.method_a(a)
 c = MyModule.method_b(b, "something")
@@ -106,8 +106,6 @@ To install this gem onto your local machine, run `bundle exec rake install`. To 
 
 Bug reports and pull requests are welcome on GitHub at https://github.com/akitaonrails/chainable_methods. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [Contributor Covenant](http://contributor-covenant.org) code of conduct.
 
-
 ## License
 
 The gem is available as open source under the terms of the [MIT License](http://opensource.org/licenses/MIT).
-

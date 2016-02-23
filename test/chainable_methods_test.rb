@@ -74,6 +74,30 @@ class ChainableMethodsTest < Minitest::Test
     assert_equal result, "(a), (b), (c), (d), (e), (f)"
   end
 
+  def test_extend_into_array_object
+    initial_state = %w(a b c d)
+    initial_state.extend ChainableMethods
+
+    # the 1 object responds to [] but it defers to the [] in the array as priority
+    result = initial_state.chain_from(1).
+      [].
+      upcase.
+      unwrap
+
+    assert_equal result, "B"
+  end
+
+  def test_same_as_extending_into_object_but_with_leaner_wrapper
+    initial_state = %w(a b c d)
+
+    result = CM.wrap(initial_state, 2).
+      [].
+      upcase.
+      unwrap
+
+    assert_equal result, "C"
+  end
+
   def test_that_it_has_a_version_number
     refute_nil ::ChainableMethods::VERSION
   end

@@ -106,6 +106,25 @@ To install this gem onto your local machine, run `bundle exec rake install`. To 
 
 Bug reports and pull requests are welcome on GitHub at https://github.com/akitaonrails/chainable_methods. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [Contributor Covenant](http://contributor-covenant.org) code of conduct.
 
+## CHANGELOG
+
+v0.1.0
+- initial version
+
+v0.1.1
+- introduces the ability to wrap any plain ruby object, without the need for a special module to extend the ChainableMethods module first.
+- fixes the priority of methods to call if both state and context has the same method, context always has precedence
+
+v0.1.2
+- introduces a shortcut global method 'CM' to be used like this:
+
+```
+CM(['a', 'b', 'c'], 2)
+  .[]
+  .upcase
+  .unwrap
+# => "C"
+```
 
 ## License
 

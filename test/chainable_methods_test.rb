@@ -1,5 +1,6 @@
 require 'test_helper'
 
+# a module has no state, in this case all methods are 'static'
 module FooModule
   extend ChainableMethods
 
@@ -17,6 +18,18 @@ module FooModule
 
   def self.filter(state)
     yield(state)
+  end
+end
+
+# useful for classes that also hold no internal state and
+# each instance method receives state from the outside
+class FooClass
+  def do_upcase(state)
+    state.upcase
+  end
+
+  def split_words(state)
+    state.split(" ")
   end
 end
 
@@ -90,12 +103,25 @@ class ChainableMethodsTest < Minitest::Test
   def test_same_as_extending_into_object_but_with_leaner_wrapper
     initial_state = %w(a b c d)
 
-    result = CM.wrap(initial_state, 2).
+    result = CM(initial_state, 2).
       [].
       upcase.
       unwrap
 
     assert_equal result, "C"
+  end
+
+  def test_allow_for_a_class_instance_that_does_not_hold_state_to_have_chainable_methods
+    initial_state = "a b c d e f"
+
+    result = CM(FooClass.new, initial_state).
+      split_words.
+      map { |character| "(#{character})" }.
+      join(", ").
+      upcase.
+      unwrap
+
+    assert_equal result, "(A), (B), (C), (D), (E), (F)"
   end
 
   def test_that_it_has_a_version_number

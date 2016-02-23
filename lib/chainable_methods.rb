@@ -37,4 +37,6 @@ module ChainableMethods
 end
 
 # easier shortcut
-CM ||= ChainableMethods
+def CM(context, initial_state)
+  ChainableMethods.wrap(context, initial_state)
+end

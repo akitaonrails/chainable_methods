@@ -1,6 +1,10 @@
 require "chainable_methods/version"
 
 module ChainableMethods
+  module Nil
+    # TODO placeholder for shortcut initializer. not the best option but works for now
+  end
+
   def chain_from(initial_state)
     ChainableMethods::Link.new(initial_state, self)
   end
@@ -15,6 +19,11 @@ module ChainableMethods
     def initialize(object, context)
       @state   = object
       @context = context
+    end
+
+    def chain(&block)
+      new_state = block.call(state)
+      ChainableMethods::Link.new( new_state, context )
     end
 
     def method_missing(name, *args, &block)
@@ -37,6 +46,6 @@ module ChainableMethods
 end
 
 # easier shortcut
-def CM(context, initial_state)
+def CM(initial_state, context = ChainableMethods::Nil)
   ChainableMethods.wrap(context, initial_state)
 end

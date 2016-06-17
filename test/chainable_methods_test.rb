@@ -33,6 +33,50 @@ class FooClass
   end
 end
 
+class BarClass
+  include ChainableMethods
+
+  attr_reader :some_state
+
+  def composed_workflow(value)
+    @some_state = chain_from(value)
+      .convert_to_dollar
+      .subtract_interest
+      .add_bonus
+      .unwrap
+  end
+
+  private
+
+  def convert_to_dollar(real_value)
+    real_value * dollar_rate
+  end
+
+  def dollar_rate
+    3.6
+  end
+
+  def subtract_interest(dollar_value)
+    dollar_value - (dollar_value * interest_rate)
+  end
+
+  def interest_rate
+    0.35
+  end
+
+  def add_bonus(dollar_value)
+    if dollar_value > 10.0
+      dollar_value + bonus_value
+    else
+      dollar_value
+    end
+  end
+
+  def bonus_value
+    10.0
+  end
+end
+
 class ChainableMethodsTest < Minitest::Test
   def test_that_it_unwraps_the_state
     initial_state = "Hello World"
@@ -103,7 +147,7 @@ class ChainableMethodsTest < Minitest::Test
   def test_same_as_extending_into_object_but_with_leaner_wrapper
     initial_state = %w(a b c d)
 
-    result = CM(initial_state, 2).
+    result = CM(2, initial_state).
       [].
       upcase.
       unwrap
@@ -114,7 +158,7 @@ class ChainableMethodsTest < Minitest::Test
   def test_allow_for_a_class_instance_that_does_not_hold_state_to_have_chainable_methods
     initial_state = "a b c d e f"
 
-    result = CM(FooClass.new, initial_state).
+    result = CM(initial_state, FooClass.new).
       split_words.
       map { |character| "(#{character})" }.
       join(", ").
@@ -126,5 +170,37 @@ class ChainableMethodsTest < Minitest::Test
 
   def test_that_it_has_a_version_number
     refute_nil ::ChainableMethods::VERSION
+  end
+
+  def test_composable_methods_in_a_class_instead_of_module
+    b = BarClass.new
+    b.composed_workflow(10.0)
+    assert_equal b.some_state, 33.4
+  end
+
+  def test_compose_methods_from_anywhere_through_blocks
+    sample = "this is a random string with a url https://www.github.com/akitaonrails/chainable_methods/ embedded"
+    # url = URI.extract(s).first
+    # uri = URI.parse(url)
+    # response = open(uri).read
+    # doc = Nokogiri::HTML(response)
+    # node = doc.css(".readme article h1").first.text.strip
+
+    require "uri"
+    require "open-uri"
+    require "nokogiri"
+    title = CM(sample)
+      .chain { |text| URI.extract(text) }
+      .first
+      .chain { |url| URI.parse(url) }
+      .chain { |uri| open(uri) }
+      .read
+      .chain { |body| Nokogiri::HTML(body) }
+      .css(".readme article h1")
+      .first
+      .text
+      .strip
+      .unwrap
+    assert_equal title, "Chainable Methods"
   end
 end

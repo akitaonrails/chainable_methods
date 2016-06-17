@@ -119,11 +119,27 @@ v0.1.2
 - introduces a shortcut global method 'CM' to be used like this:
 
 ```
-CM(['a', 'b', 'c'], 2)
+CM(2, ['a', 'b', 'c'])
   .[]
   .upcase
   .unwrap
 # => "C"
+```
+
+v0.1.3
+- introduces the #chain method do link blocks of code together, the results are wrapped in the Link object and chained again
+
+```
+CM("foo http:///www.google.com bar")
+.chain { |text| URI.extract(text) }
+.first
+.chain { |url| URI.parse(url) }
+.chain { |uri| open(uri) }
+.read
+.chain { |body| Nokogiri::HTML(body) }
+.css("h1")
+.first.text.strip
+.unwrap
 ```
 
 ## License

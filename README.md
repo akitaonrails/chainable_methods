@@ -2,6 +2,8 @@
 
 <a href="https://codeclimate.com/repos/57659a6019dc0b459200205b/feed"><img src="https://codeclimate.com/repos/57659a6019dc0b459200205b/badges/fbf8f254fa716b481c40/gpa.svg" /></a>
 
+<a href="https://travis-ci.org/akitaonrails/chainable_methods"><img src="https://travis-ci.org/akitaonrails/chainable_methods.svg?branch=master" /></a>
+
 <a href="https://codeclimate.com/repos/57659a6019dc0b459200205b/coverage"><img src="https://codeclimate.com/repos/57659a6019dc0b459200205b/badges/fbf8f254fa716b481c40/coverage.svg" /></a>
 
 <a href="https://codeclimate.com/repos/57659a6019dc0b459200205b/feed"><img src="https://codeclimate.com/repos/57659a6019dc0b459200205b/badges/fbf8f254fa716b481c40/issue_count.svg" /></a>

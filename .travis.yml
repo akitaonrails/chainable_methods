@@ -1,4 +1,15 @@
 language: ruby
+cache: bundler
 rvm:
-  - 2.3.0
-before_install: gem install bundler -v 1.11.2
+  - 2.3.1
+before_install:
+  - gem install bundler -v 1.11.2
+script:
+  - xvfb-run bundle exec rake test
+notifications:
+  email:
+    recipients:
+      - boss@akitaonrails.com
+addons:
+  code_climate:
+    repo_token: 9336cb6031790cc0f5501db2d74c8671c6ff1b74eb2883c0456a5722a775d655

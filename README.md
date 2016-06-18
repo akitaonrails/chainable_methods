@@ -1,5 +1,11 @@
 # Chainable Methods
 
+<a href="https://codeclimate.com/repos/57659a6019dc0b459200205b/feed"><img src="https://codeclimate.com/repos/57659a6019dc0b459200205b/badges/fbf8f254fa716b481c40/gpa.svg" /></a>
+
+<a href="https://codeclimate.com/repos/57659a6019dc0b459200205b/coverage"><img src="https://codeclimate.com/repos/57659a6019dc0b459200205b/badges/fbf8f254fa716b481c40/coverage.svg" /></a>
+
+<a href="https://codeclimate.com/repos/57659a6019dc0b459200205b/feed"><img src="https://codeclimate.com/repos/57659a6019dc0b459200205b/badges/fbf8f254fa716b481c40/issue_count.svg" /></a>
+
 The Elixir language is doing great and within its many incredible features is the famous "Pipe Operator". Other popular functional languages like Haskell and F# sport a similar feature.
 
 It allows you to do constructs such as this:

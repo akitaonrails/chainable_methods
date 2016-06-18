@@ -13,16 +13,18 @@ The Elixir language is doing great and within its many incredible features is th
 It allows you to do constructs such as this:
 
 ```elixir
+require Integer
 1..100_000
   |> Stream.map(&(&1 * 3))
-  |> Stream.filter(odd?)
+  |> Stream.filter(&(Integer.is_odd(&1)))
   |> Enum.sum
 ```
 
 In a nutshell, this is taking the previous returning value and automatically passing it as the first argument of the following function call, so it's sort of equivalent to do this:
 
 ```elixir
-Enum.sum(Enum.filter(Enum.map(1..100_000, &(&1 * 3)), odd?))
+require Integer
+Enum.sum(Enum.filter(Enum.map(1..100_000, &(&1 * 3)), &(Integer.is_odd(&1))))
 ```
 
 (In F# it's even more important to make proper left-to-right type inference.)

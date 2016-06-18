@@ -2,21 +2,21 @@ require 'test_helper'
 
 # a module has no state, in this case all methods are 'static'
 module FooModule
-  extend ChainableMethods
+  include ChainableMethods
 
-  def self.do_upcase(state)
+  def do_upcase(state)
     state.upcase
   end
 
-  def self.append_message(state, message)
+  def append_message(state, message)
     [state, message].join(" ")
   end
 
-  def self.split_words(state)
+  def split_words(state)
     state.split(" ")
   end
 
-  def self.filter(state)
+  def filter(state)
     yield(state)
   end
 end
@@ -186,21 +186,20 @@ class ChainableMethodsTest < Minitest::Test
     # doc = Nokogiri::HTML(response)
     # node = doc.css(".readme article h1").first.text.strip
 
-    require "uri"
-    require "open-uri"
-    require "nokogiri"
-    title = CM(sample)
-      .chain { |text| URI.extract(text) }
-      .first
-      .chain { |url| URI.parse(url) }
-      .chain { |uri| open(uri) }
-      .read
-      .chain { |body| Nokogiri::HTML(body) }
-      .css(".readme article h1")
-      .first
-      .text
-      .strip
-      .unwrap
-    assert_equal title, "Chainable Methods"
+    VCR.use_cassette("github-test") do
+      require "uri"
+      require "open-uri"
+      require "nokogiri"
+      title = CM(sample)
+        .chain { |text| URI.extract(text).first }
+        .chain { |url| URI.parse(url) }
+        .chain { |uri| open(uri).read }
+        .chain { |body| Nokogiri::HTML(body) }
+        .css(".readme article h1")
+        .first.text.strip
+        .unwrap
+
+      assert_equal title, "Chainable Methods"
+    end
   end
 end

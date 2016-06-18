@@ -9,7 +9,7 @@ Gem::Specification.new do |spec|
   spec.authors       = ["AkitaOnRails"]
   spec.email         = ["fabioakita@gmail.com"]
 
-  spec.summary       = %q{Just a simple experiment to allow for a behavior similar to Elixir's Pipe Operator but within Ruby's semantics.}
+  spec.summary       = %q{Just a simple experiment to allow for a behavior similar to [Elixir|Haskell|F#]'s Pipe Operator but within Ruby's semantics.}
   spec.description   = %q{The idea is to allow for a more functional way of organizing code within a module and being able to chain those methdos together, where the result of the first method serves as the first argument of the next method in the chain.}
   spec.homepage      = "http://www.codeminer42.com"
   spec.license       = "MIT"
@@ -23,4 +23,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "rake", "~> 10.0"
   spec.add_development_dependency "minitest", "~> 5.0"
   spec.add_development_dependency "nokogiri", "~> 1.6.8"
+  spec.add_development_dependency "pry", "~> 0.10.3"
+  spec.add_development_dependency "vcr", "~> 3.0.3"
+  spec.add_development_dependency "webmock", "~> 2.1.0"
 end

@@ -1,6 +1,6 @@
 # Chainable Methods
 
-The Elixir language is doing great and within its many incredible features is the famour "Pipe Operator".
+The Elixir language is doing great and within its many incredible features is the famous "Pipe Operator". Other popular functional languages like Haskell and F# sport a similar feature.
 
 It allows you to do constructs such as this:
 
@@ -11,11 +11,13 @@ It allows you to do constructs such as this:
   |> Enum.sum
 ```
 
-In a nutshell, this is taking the previous returning value and automatically passing as the first argument of the following function call, so it's equivalent to do this:
+In a nutshell, this is taking the previous returning value and automatically passing it as the first argument of the following function call, so it's sort of equivalent to do this:
 
 ```
 Enum.sum(Enum.filter(Enum.map(1..100_000, &(&1 * 3)), odd?))
 ```
+
+(In F# it's even more important to make proper left-to-right type inference.)
 
 This is how we would usually do it, but with the Pipe Operator it becomes incredibly more enjoyable and readable to work with and shifts our way of thinking into making small functions in linked chains. (By the way, this example comes straight from [Elixir's Documentation](http://elixir-lang.org/getting-started/enumerables-and-streams.html))
 
@@ -31,9 +33,9 @@ This is how we do things in Rails, for example, Arel coming into mind:
 User.first.comments.where(created_at: 2.days.ago..Time.current).limit(5)
 ```
 
-This pattern involves the methods returning "self" and further methods changing the internal state of the object.
+This pattern involves the methods returning a chainable Relation object and further methods changing the internal state of that object.
 
-On the other hand, sometimes we would want to just be able to take adhoc returning objects and passing them ahead and isolating on the methods level instead of the objects level. There is a lot of existing discussions so the idea is not to vouch for one option or the other.
+On the other hand, sometimes we would just want to be able to take adhoc returning objects and passing them ahead and isolating on the methods level instead of the objects level. There is a lot of existing discussions so the idea is not to vouch for one option or another.
 
 In case you want to do the "semi-functional" way, we can do it like this:
 
@@ -58,18 +60,18 @@ Or install it yourself as:
 ```
 # create your Module with composable 'functions'
 module MyModule
-  extend ChainableMethods
+  include ChainableMethods
 
-  def self.method_a(current_state)
+  def method_a(current_state)
     # transform the state
     do_something(current_state)
   end
 
-  def self.method_b(current_state, other_argument)
+  def method_b(current_state, other_argument)
     do_something2(current_state, other_argument)
   end
 
-  def self.method_c(current_state)
+  def method_c(current_state)
     yield(current_state)
   end
 end
@@ -95,6 +97,36 @@ b = MyModule.method_a(a)
 c = MyModule.method_b(b, "something")
 d = MyModule.method_c(c) { |c| do_something3(c) }
 ```
+
+The recommend approach is to create modules to serve as "namespaces" for collections of methods, each being a step of some transformation chain. A module will not hold any internal state and the methods will rely only on what the previous methods return.
+
+Sometimes we have adhoc transformations. We usually have to storage intermediate states as dangling variables like this:
+
+```
+text  = "hello http:///www.google.com world"
+url   = URI.extract(text).first }
+uri   = URI.parse(url)
+body  = open(uri).read
+title = Nokogiri::HTML(body).css("h1").first.text.strip
+```
+
+Or now, we can just chain them together like this:
+
+```
+CM("hello http:///www.google.com world")
+  .chain { |text| URI.extract(text).first }
+  .chain { |url| URI.parse(url) }
+  .chain { |uri| open(uri).read }
+  .chain { |body| Nokogiri::HTML(body).css("h1") }
+  .first.text.strip
+  .unwrap
+```
+
+I think this is way neater :-) And as a bonus it's also easier to refactor and change the order of the steps or add new steps in-between.
+
+Using the `#chain` call you can add transformations from anywhere and keep chaining methods from the returning objects as well, in the same mix, and without those ugly dangling variables.
+
+The shortcut `CM(state, context)` will wrap the initial state and optionally provide a module as a context upon which to call the chained methods. Without you declaring this context, the chained methods will run the initial state object's methods.
 
 ## Development
 
@@ -129,18 +161,8 @@ CM(2, ['a', 'b', 'c'])
 v0.1.3
 - introduces the #chain method do link blocks of code together, the results are wrapped in the Link object and chained again
 
-```
-CM("foo http:///www.google.com bar")
-.chain { |text| URI.extract(text) }
-.first
-.chain { |url| URI.parse(url) }
-.chain { |uri| open(uri) }
-.read
-.chain { |body| Nokogiri::HTML(body) }
-.css("h1")
-.first.text.strip
-.unwrap
-```
+v0.1.4
+- makes the ChainableMethods module "includable" and it automatically makes all instance methods of the parent Module as class methods that can be easily chainable without having to declare all of them as `def self.method` first. So you can do it like this:
 
 ## License
 

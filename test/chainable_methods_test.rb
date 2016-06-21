@@ -1,4 +1,11 @@
 require 'test_helper'
+require "uri"
+require "open-uri"
+require "nokogiri"
+
+class Object
+  include ChainableMethods
+end
 
 # a module has no state, in this case all methods are 'static'
 module FooModule
@@ -147,7 +154,7 @@ class ChainableMethodsTest < Minitest::Test
   def test_same_as_extending_into_object_but_with_leaner_wrapper
     initial_state = %w(a b c d)
 
-    result = CM(2, initial_state).
+    result = CM(2, context: initial_state).
       [].
       upcase.
       unwrap
@@ -158,7 +165,7 @@ class ChainableMethodsTest < Minitest::Test
   def test_allow_for_a_class_instance_that_does_not_hold_state_to_have_chainable_methods
     initial_state = "a b c d e f"
 
-    result = CM(initial_state, FooClass.new).
+    result = CM(initial_state, context: FooClass.new).
       split_words.
       map { |character| "(#{character})" }.
       join(", ").
@@ -187,9 +194,6 @@ class ChainableMethodsTest < Minitest::Test
     # node = doc.css(".readme article h1").first.text.strip
 
     VCR.use_cassette("github-test") do
-      require "uri"
-      require "open-uri"
-      require "nokogiri"
       title = CM(sample)
         .chain { |text| URI.extract(text).first }
         .chain { |url| URI.parse(url) }
@@ -201,5 +205,10 @@ class ChainableMethodsTest < Minitest::Test
 
       assert_equal title, "Chainable Methods"
     end
+  end
+
+  def test_partial_chainability_with_pass_through
+    # TODO
+    assert false
   end
 end

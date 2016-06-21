@@ -1,8 +1,8 @@
 require "chainable_methods/version"
 
 # easier shortcut
-def CM(initial_state, context = ChainableMethods::Nil)
-  ChainableMethods::Link.new(initial_state, context)
+def CM(initial_state, context: ChainableMethods::Nil, pass_through: false)
+  ChainableMethods::Link.new(initial_state, context: context, pass_through: pass_through)
 end
 
 module ChainableMethods
@@ -19,19 +19,25 @@ module ChainableMethods
     end
   end
 
-  def chain_from(initial_state, context = self)
-    ChainableMethods::Link.new(initial_state, context)
+  def chain_from(initial_state = nil, context: self, pass_through: false)
+    initial_state = self if initial_state.nil?
+    ChainableMethods::Link.new(initial_state, context: context, pass_through: pass_through)
   end
 
   class Link
-    def initialize(object, context)
+    def initialize(object, context:, pass_through: false)
       @state   = object
       @context = context
+      @pass_through = pass_through
     end
 
     def chain(&block)
       new_state = block.call(@state)
-      ChainableMethods::Link.new( new_state, @context )
+      if @pass_through
+        new_state
+      else
+        ChainableMethods::Link.new( new_state, context: @context, pass_through: @pass_through)
+      end
     end
 
     def method_missing(method_name, *args, &block)
@@ -46,7 +52,11 @@ module ChainableMethods
                     @context.send(method_name, *args.unshift(@state), &block)
                   end
 
-      ChainableMethods::Link.new( new_state, @context )
+      if @pass_through
+        new_state
+      else
+        ChainableMethods::Link.new( new_state, context: @context, pass_through: @pass_through )
+      end
     end
 
     def unwrap

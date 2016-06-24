@@ -74,12 +74,13 @@ For example, given a text with links in it, how do I extract the links, parse th
 This is one such example:
 
 ```ruby
+include Nokogiri
 CM("foo bar http://github.com/akitaonrails/chainable_methods foo bar")
   .URI.extract
   .first
   .URI.parse
   .HTTParty.get
-  .Nokogiri::HTML.parse
+  .HTML.parse
   .css("H1")
   .text
   .unwrap
@@ -108,7 +109,7 @@ Chaining feels way more natural. And in a pseudo-Elixir version it would be some
   |> List.first
   |> URI.parse
   |> HTTParty.get
-  |> Nokogiri::HTML.parse
+  |> HTML.parse
   |> css("H1")
 ```
 
@@ -172,11 +173,12 @@ title = Nokogiri::HTML(body).css("h1").first.text.strip
 Or now, we can just chain them together like this:
 
 ```ruby
+include Nokogiri
 CM("hello http:///www.google.com world")
   .URI.extract.first
   .URI.parse
   .chain { |uri| open(uri).read }
-  .Nokogiri::HTML.parse
+  .HTML.parse
   .css("h1")
   .first.text.strip
   .unwrap

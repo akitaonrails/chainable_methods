@@ -202,4 +202,24 @@ class ChainableMethodsTest < Minitest::Test
       assert_equal title, "Chainable Methods"
     end
   end
+
+  def test_compose_methods_from_anywhere_without_blocks
+    sample = "this is a random string with a url https://www.github.com/akitaonrails/chainable_methods/ embedded"
+
+    VCR.use_cassette("github-test") do
+      require "uri"
+      require "open-uri"
+      require "nokogiri"
+      title = CM(sample)
+        .URI.extract.first
+        .URI.parse
+        .chain { |uri| open(uri).read }
+        .chain { |body| Nokogiri::HTML(body) }
+        .css(".readme article h1")
+        .first.text.strip
+        .unwrap
+
+      assert_equal title, "Chainable Methods"
+    end
+  end
 end

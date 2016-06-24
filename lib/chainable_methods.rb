@@ -35,6 +35,10 @@ module ChainableMethods
     end
 
     def method_missing(method_name, *args, &block)
+      if is_constant?(method_name)
+        return ChainableMethods::Link.new( @state, ::Kernel.const_get(method_name) )
+      end
+
       local_response   = @state.respond_to?(method_name)
       context_response = @context.respond_to?(method_name)
 
@@ -51,6 +55,14 @@ module ChainableMethods
 
     def unwrap
       @state
+    end
+
+    private def is_constant?(method_name)
+      method_name_start = method_name.to_s.chars.first
+      if method_name_start =~ /\A[[:alpha:]]+\z/i
+        return ( method_name_start.upcase == method_name_start )
+      end
+      false
     end
   end
 end

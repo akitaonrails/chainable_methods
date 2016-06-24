@@ -124,8 +124,8 @@ Or now, we can just chain them together like this:
 
 ```ruby
 CM("hello http:///www.google.com world")
-  .chain { |text| URI.extract(text).first }
-  .chain { |url| URI.parse(url) }
+  .URI.extract.first
+  .URI.parse
   .chain { |uri| open(uri).read }
   .chain { |body| Nokogiri::HTML(body).css("h1") }
   .first.text.strip
@@ -173,6 +173,9 @@ v0.1.3
 
 v0.1.4
 - makes the ChainableMethods module "includable" and it automatically makes all instance methods of the parent Module as class methods that can be easily chainable without having to declare all of them as `def self.method` first. So you can do it like this:
+
+v0.2.1
+- use a const_get trick to allow to chain Module or Class names directly in the dot notation. Inspired by [this gist](https://gist.github.com/bkerley/754df43c98e116e82003). Kudos to @bkerley for the idea and @BonzoESC for bringing it out.
 
 ## License
 

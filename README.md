@@ -8,7 +8,7 @@
 
 <a href="https://codeclimate.com/repos/57659a6019dc0b459200205b/feed"><img src="https://codeclimate.com/repos/57659a6019dc0b459200205b/badges/fbf8f254fa716b481c40/issue_count.svg" /></a>
 
-The Elixir language is doing great and within its many incredible features is the famous "Pipe Operator". Other popular functional languages like Haskell and F# sport a similar feature.
+The Elixir language is great and within its many incredible features is the famous "Pipe Operator". Other popular functional languages like Haskell and F# sport a similar feature to chain method calls in a non-OO language.
 
 It allows you to do constructs such as this:
 
@@ -27,9 +27,9 @@ require Integer
 Enum.sum(Enum.filter(Enum.map(1..100_000, &(&1 * 3)), &(Integer.is_odd(&1))))
 ```
 
-(In F# it's even more important to make proper left-to-right type inference.)
-
 This is how we would usually do it, but with the Pipe Operator it becomes incredibly more enjoyable and readable to work with and shifts our way of thinking into making small functions in linked chains. (By the way, this example comes straight from [Elixir's Documentation](http://elixir-lang.org/getting-started/enumerables-and-streams.html))
+
+(In F# it's even more important to make proper left-to-right type inference.)
 
 Now, in the Ruby world, we would prefer to do it in a more Object Oriented fashion, with chained methods like this:
 
@@ -37,7 +37,7 @@ Now, in the Ruby world, we would prefer to do it in a more Object Oriented fashi
 object.method_1.method_2(argument).method_3 { |x| do_something(x) }.method_4
 ```
 
-This is how we do things in Rails, for example, Arel coming into mind:
+This is how we do things with collections (Enumerables in general), and in Rails. For example, Arel coming into mind:
 
 ```ruby
 User.first.comments.where(created_at: 2.days.ago..Time.current).limit(5)
@@ -66,6 +66,55 @@ Or install it yourself as:
     $ gem install chainable_methods
 
 ## Usage
+
+The easiest way and one of the most important purposes of this implementation in Ruby is to allow quick prototyping and better interface discovery. The gist of it is to think of _"given an input data, what transformation steps should I follow to get to a certain output data?"_
+
+For example, given a text with links in it, how do I extract the links, parse them, fetch thee content of a link, parse the HTML, and finally get the title?
+
+This is one such example:
+
+```ruby
+CM("foo bar http://github.com/akitaonrails/chainable_methods foo bar")
+  .URI.extract
+  .first
+  .URI.parse
+  .HTTParty.get
+  .Nokogiri::HTML.parse
+  .css("H1")
+  .text
+  .unwrap
+```
+
+And that's it!
+
+Now, an important point is that I am **NOT** saying that this is a good state to leave your code, but it makes it easy to quickly prototype, test and reason about which parts should be encapsulated in a different method or even a different class.
+
+The only other way to quickly prototype the same thing without Chainable Methods would be to use _temporary variables_ which litter your code with dangerous variables that can be misused and make refactorings more difficult, for example:
+
+```ruby
+sample_text = "foo bar http://github.com/akitaonrails/chainable_methods foo bar"
+sample_link = URI.extract(sample_text).first
+uri = URI.parse(sample_link)
+response = HTTParty.get(uri)
+doc = Nokogiri::HTML.parse(response)
+title = doc.css("H1").text
+```
+
+Chaining feels way more natural. And in a pseudo-Elixir version it would be something like this:
+
+```ruby
+"foo bar http://github.com/akitaonrails/chainable_methods foo bar"
+  |> URI.extract
+  |> List.first
+  |> URI.parse
+  |> HTTParty.get
+  |> Nokogiri::HTML.parse
+  |> css("H1")
+```
+
+So we got similar levels of functionality without compromising the dot-notation and the Ruby style.
+
+And we can advance further in other ways to use this chaining methods scheme to better organize functional-style coding:
 
 ```ruby
 # create your Module with composable 'functions'
@@ -99,7 +148,7 @@ MyModule.
   unwrap
 ```
 
-And that's it. This would be the equivalent of doing something more verbose like this:
+And that's it. Again, this would be the equivalent of doing something more verbose like this:
 
 ```ruby
 a = some_text.upcase
@@ -108,9 +157,9 @@ c = MyModule.method_b(b, "something")
 d = MyModule.method_c(c) { |c| do_something3(c) }
 ```
 
-The recommend approach is to create modules to serve as "namespaces" for collections of methods, each being a step of some transformation chain. A module will not hold any internal state and the methods will rely only on what the previous methods return.
+So we have this approach to create modules to serve as "namespaces" for collections of isolated and stateless functions, each being a step of some transformation workflow. A module will not hold any internal state and the methods will rely only on what the previous methods return.
 
-Sometimes we have adhoc transformations. We usually have to storage intermediate states as dangling variables like this:
+Sometimes we have adhoc transformations. We usually have to store intermediate states as temporary variables like this:
 
 ```ruby
 text  = "hello http:///www.google.com world"
@@ -127,14 +176,15 @@ CM("hello http:///www.google.com world")
   .URI.extract.first
   .URI.parse
   .chain { |uri| open(uri).read }
-  .chain { |body| Nokogiri::HTML(body).css("h1") }
+  .Nokogiri::HTML.parse
+  .css("h1")
   .first.text.strip
   .unwrap
 ```
 
 I think this is way neater :-) And as a bonus it's also easier to refactor and change the order of the steps or add new steps in-between.
 
-Using the `#chain` call you can add transformations from anywhere and keep chaining methods from the returning objects as well, in the same mix, and without those ugly dangling variables.
+If you don't have a neat "Module.method" format to chain, you can use the `#chain` call to add transformations from anywhere and keep chaining methods from the returning objects as well, in the same mix, and without those ugly dangling variables.
 
 The shortcut `CM(state, context)` will wrap the initial state and optionally provide a module as a context upon which to call the chained methods. Without you declaring this context, the chained methods will run the initial state object's methods.
 
@@ -181,3 +231,12 @@ v0.2.1
 
 The gem is available as open source under the terms of the [MIT License](http://opensource.org/licenses/MIT).
 
+CM("http://foo.com")
+.URI.extract
+.first
+.URI.parse
+.HTTParty.get
+.Nokogiri::HTML.parse
+.css("h1")
+.text
+.unwrap

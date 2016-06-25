@@ -24,9 +24,8 @@ module ChainableMethods
   end
 
   class Link
-    def initialize(object, context)
-      @state   = object
-      @context = context
+    def initialize(object, context = ChainableMethods::Nil)
+      @state, @context = object, context
     end
 
     def chain(&block)
@@ -36,33 +35,42 @@ module ChainableMethods
 
     def method_missing(method_name, *args, &block)
       if is_constant?(method_name)
-        return ChainableMethods::Link.new( @state, ::Kernel.const_get(method_name) )
+        return ChainableMethods::Link.new( @state, constant_name(method_name) )
       end
 
-      local_response   = @state.respond_to?(method_name)
-      context_response = @context.respond_to?(method_name)
-
-      # if the state itself has the means to respond, delegate to it
-      # but if the context has the behavior, it has priority over the delegation
-      new_state = if local_response && !context_response
-                    @state.send(method_name, *args, &block)
-                  else
-                    @context.send(method_name, *args.unshift(@state), &block)
-                  end
-
-      ChainableMethods::Link.new( new_state, @context )
+      ChainableMethods::Link.new( new_state(method_name, args, block), @context )
     end
 
     def unwrap
       @state
     end
 
-    private def is_constant?(method_name)
+    private
+
+    def run_on_state?(method_name)
+      @state.respond_to?(method_name) && !@context.respond_to?(method_name)
+    end
+
+    def new_state(method_name, args, block)
+      # if the state itself has the means to respond, delegate to it
+      # but if the context has the behavior, it has priority over the delegation
+      if run_on_state?(method_name)
+        @state.send(method_name, *args, &block)
+      else
+        @context.send(method_name, *args.unshift(@state), &block)
+      end
+    end
+
+    def is_constant?(method_name)
       method_name_start = method_name.to_s.chars.first
       if method_name_start =~ /\A[[:alpha:]]+\z/i
         return ( method_name_start.upcase == method_name_start )
       end
       false
+    end
+
+    def constant_name(method_name)
+      ::Kernel.const_get(method_name)
     end
   end
 end

@@ -1,4 +1,8 @@
 require 'test_helper'
+require "uri"
+require "open-uri"
+require "nokogiri"
+include Nokogiri
 
 # a module has no state, in this case all methods are 'static'
 module FooModule
@@ -187,9 +191,6 @@ class ChainableMethodsTest < Minitest::Test
     # node = doc.css(".readme article h1").first.text.strip
 
     VCR.use_cassette("github-test") do
-      require "uri"
-      require "open-uri"
-      require "nokogiri"
       title = CM(sample)
         .chain { |text| URI.extract(text).first }
         .chain { |url| URI.parse(url) }
@@ -207,14 +208,11 @@ class ChainableMethodsTest < Minitest::Test
     sample = "this is a random string with a url https://www.github.com/akitaonrails/chainable_methods/ embedded"
 
     VCR.use_cassette("github-test") do
-      require "uri"
-      require "open-uri"
-      require "nokogiri"
       title = CM(sample)
         .URI.extract.first
         .URI.parse
         .chain { |uri| open(uri).read }
-        .chain { |body| Nokogiri::HTML(body) }
+        .HTML.parse
         .css(".readme article h1")
         .first.text.strip
         .unwrap

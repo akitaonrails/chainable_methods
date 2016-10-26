@@ -232,13 +232,3 @@ v0.2.1
 ## License
 
 The gem is available as open source under the terms of the [MIT License](http://opensource.org/licenses/MIT).
-
-CM("http://foo.com")
-.URI.extract
-.first
-.URI.parse
-.HTTParty.get
-.Nokogiri::HTML.parse
-.css("h1")
-.text
-.unwrap

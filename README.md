@@ -69,7 +69,7 @@ Or install it yourself as:
 
 The easiest way and one of the most important purposes of this implementation in Ruby is to allow quick prototyping and better interface discovery. The gist of it is to think of _"given an input data, what transformation steps should I follow to get to a certain output data?"_
 
-For example, given a text with links in it, how do I extract the links, parse them, fetch thee content of a link, parse the HTML, and finally get the title?
+For example, given a text with links in it, how do I extract the links, parse them, fetch the content of a link, parse the HTML, and finally get the title?
 
 This is one such example:
 
